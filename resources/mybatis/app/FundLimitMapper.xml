@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.FundLimitMapper">
+
+	<resultMap id="fundLimitMap" type="cn.aresoft.model.app.FundLimit">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="fundcode" property="fundcode" jdbcType="VARCHAR" />
+		<result column="fundname" property="fundname" jdbcType="VARCHAR" />
+		<result column="fundtype" property="fundtype" jdbcType="VARCHAR" />
+		<result column="fundtypename" property="fundtypename" jdbcType="VARCHAR" />
+		<result column="floor" property="floor" jdbcType="NUMERIC" />
+		<result column="toplimit" property="toplimit" jdbcType="NUMERIC" />
+		<result column="limittype" property="limittype" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<insert id="insertFundLimit" parameterType="cn.aresoft.model.app.FundLimit">
+		insert into
+		fund_limit
+		(id,create_name,create_by,create_date,onuse,fundcode,fundname,fundtype,fundtypename,floor,toplimit,limittype,remark)
+		values(seq_version_id.nextval,#{fundLimit.createName},#{fundLimit.createBy},
+		sysdate,#{fundLimit.onuse},#{fundLimit.fundcode},#{fundLimit.fundname}
+		,#{fundLimit.fundtype},#{fundLimit.fundtypename},#{fundLimit.floor},#{fundLimit.toplimit},#{fundLimit.limittype},#{fundLimit.remark})
+	</insert>
+
+	<update id="updateFundLimit" parameterType="cn.aresoft.model.app.FundLimit">
+		update fund_limit
+		set
+		update_by=#{fundLimit.updateBy},update_name=#{fundLimit.updateName},update_date=sysdate
+		,onuse=#{fundLimit.onuse},fundcode=#{fundLimit.fundcode},fundname=#{fundLimit.fundname},fundtype=#{fundLimit.fundtype}
+		,fundtypename=#{fundLimit.fundtypename},floor=#{fundLimit.floor},
+		toplimit=#{fundLimit.toplimit},limittype=#{fundLimit.limittype},remark=#{fundLimit.remark}
+		where id=#{fundLimit.id}
+	</update>
+
+	<select id="queryFundLimitList" resultMap="fundLimitMap">
+		select
+		id,onuse,fundcode,fundname,fundtype,fundtypename,floor,toplimit,limittype,remark
+		from fund_limit t
+		<where>
+			1=1
+			<if test="map.fundcode!=null">
+				and fundcode=#{map.fundcode}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by onuse desc,create_date desc
+	</select>
+
+	<select id="getFundLimitById" resultMap="fundLimitMap"
+		parameterType="java.lang.String">
+		select
+		*
+		from fund_limit where id=#{id}
+	</select>
+	<delete id="deleteFundLimit">
+		delete from fund_limit where id=#{id} and
+		onuse='no'
+	</delete>
+
+
+	<select id="queryRestFundLimitList" resultMap="fundLimitMap">
+		select
+		fundcode,fundname,fundtype,fundtypename,floor,toplimit,limittype
+		from
+		fund_limit t
+		<where>
+			1=1
+			<if test="map.fundcode!=null">
+				and fundcode=#{map.fundcode}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by onuse desc,create_date desc
+	</select>
+
+
+	<select id="getFundCodes" resultType="String">
+		select
+		fundcode
+		from
+		fund_limit t
+	</select>
+
+</mapper>
+  

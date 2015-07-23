@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.PicMapper">
+
+	<resultMap id="picMap" type="cn.aresoft.model.app.Pic">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="pictype" property="pictype" jdbcType="VARCHAR" />
+		<result column="tourl" property="tourl" jdbcType="VARCHAR" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="NUMERIC" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<!-- <result column="appmgr_picurl" property="appmgrpicurl"
+			jdbcType="VARCHAR" /> -->
+	</resultMap>
+
+	<insert id="insertPic" parameterType="cn.aresoft.model.app.Pic">
+		insert into app_pic
+		(id,create_name,create_by,create_date,pictype,tourl,onuse,url,sort,title,remark)
+		values(seq_version_id.nextval,#{pic.createName},#{pic.createBy},
+		sysdate,#{pic.pictype},#{pic.tourl},#{pic.onuse},#{pic.url},#{pic.sort},#{pic.title},#{pic.remark})
+	</insert>
+
+	<update id="updatePic" parameterType="cn.aresoft.model.app.Pic">
+		update app_pic set
+		update_by=#{pic.updateBy},update_name=#{pic.updateName},update_date=sysdate,pictype=#{pic.pictype},
+		tourl=#{pic.tourl},onuse=#{pic.onuse},url=#{pic.url},sort=#{pic.sort},title=#{pic.title},remark=#{pic.remark}
+		where id=#{pic.id}
+	</update>
+
+	<select id="queryPicList" resultMap="picMap">
+		select
+		id,pictype,tourl,onuse,url,sort,title,remark
+		from app_pic t
+		<where>
+			1=1
+			<if test="map.pictype!=null">
+				and pictype=#{map.pictype}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by onuse desc,pictype ,sort,create_date desc
+	</select>
+
+	<select id="getPicById" resultMap="picMap" parameterType="java.lang.String">
+		select
+		*
+		from app_pic where id=#{id}
+	</select>
+	<delete id="deletePic">
+		delete from app_pic where id=#{id} and onuse='no'
+	</delete>
+
+	<!-- app REST查询 -->
+	<select id="queryRestPicList" resultMap="picMap">
+		select
+		pictype,tourl,url,sort
+		from app_pic
+		<where>
+			1=1
+			<if test="map.pictype!=null">
+				and pictype=#{map.pictype}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by sort,create_date desc
+	</select>
+</mapper>
+  

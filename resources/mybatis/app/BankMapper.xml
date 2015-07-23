@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.BankMapper">
+
+	<resultMap id="bankMap" type="cn.aresoft.model.app.Bank">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="BANKID" property="bankId" jdbcType="VARCHAR" />
+		<result column="paystyle" property="paystyle" jdbcType="VARCHAR" />
+		<result column="SINGLE" property="single" jdbcType="NUMERIC" />
+		<result column="SINGLEDAY" property="singleDay" jdbcType="NUMERIC" />
+		<result column="MONTHLY" property="monthly" jdbcType="NUMERIC" />
+		<result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="ONUSE" property="onuse" jdbcType="NVARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="queryBankList" resultMap="bankMap">
+		select * from bank
+		<where>
+			1=1
+			<if test="map.bankId">
+				and bankId = #{map.bankId}
+			</if>
+		</where>
+		order by onuse,create_date
+	</select>
+	<insert id="insertBank" parameterType="cn.aresoft.model.app.Bank">
+		insert into bank
+		(id,create_name,create_by,create_date,bankId,single,singleDay,monthly,onuse,paystyle,remark)
+		values(SEQ_version_ID.NEXTVAL,#{bank.createName},#{bank.createBy},
+		sysdate,#{bank.bankId},#{bank.single},#{bank.singleDay},#{bank.monthly},#{bank.onuse},#{bank.paystyle},#{bank.remark})
+	</insert>
+	<update id="updateBank" parameterType="cn.aresoft.model.app.Bank">
+		update Bank set
+		update_by=#{bank.updateBy},update_name=#{bank.updateName},update_date=sysdate,
+		BANKID=#{bank.bankId},SINGLE=#{bank.single},SINGLEDAY=#{bank.singleDay},
+		MONTHLY=#{bank.monthly},ONUSE=#{bank.onuse},paystyle=#{bank.paystyle},remark=#{bank.remark}
+		where id=#{bank.id}
+	</update>
+	<delete id="deleteBank">
+		delete from bank where id=#{id} and onuse='no'
+	</delete>
+	<select id="getBankById" resultMap="bankMap" parameterType="java.lang.String">
+		select *
+		from bank where id=#{id}
+	</select>
+
+
+	<!-- rest查询 -->
+	<select id="queryRestBankLimitList" resultMap="bankMap">
+		select
+		bankId,single,singleDay,monthly,paystyle
+		from bank
+		<where>
+			1=1
+			<if test="map.bankId">
+				and bankId = #{map.bankId}
+			</if>
+			<if test="map.paystyle">
+				and paystyle = #{map.paystyle}
+			</if>
+			<if test="map.onuse">
+				and onuse = #{map.onuse}
+			</if>
+		</where>
+		order by create_date
+	</select>
+</mapper>
+  

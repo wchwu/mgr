@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.VersionMapper">
+
+	<resultMap id="versionMap" type="cn.aresoft.model.app.Version">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="apptype" property="apptype" jdbcType="VARCHAR" />
+		<result column="version" property="version" jdbcType="VARCHAR" />
+		<result column="filesize" property="filesize" jdbcType="NUMERIC" />
+		<result column="force" property="force" jdbcType="VARCHAR" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<insert id="insertVersion" parameterType="cn.aresoft.model.app.Version">
+		insert into version
+		(id,create_name,create_by,create_date,apptype,version,force,onuse,url,filesize,remark)
+		values(seq_version_id.nextval,#{version.createName},#{version.createBy},
+		sysdate,#{version.apptype},#{version.version},#{version.force},'no',#{version.url},#{version.filesize},#{version.remark})
+	</insert>
+
+	<update id="updateVersion" parameterType="cn.aresoft.model.app.Version">
+		update version set
+		update_by=#{version.updateBy},update_name=#{version.updateName},update_date=sysdate,apptype=#{version.apptype},
+		version=#{version.version},force=#{version.force},url=#{version.url},filesize=#{version.filesize},remark=#{version.remark}
+		where id=#{version.id}
+	</update>
+
+	<select id="queryVersionList" resultMap="versionMap">
+		select
+		id,apptype,version,force,onuse,url,filesize,remark
+		from version
+		<where>
+			1=1
+			<if test="map.apptype!=null">
+				and apptype=#{map.apptype}
+			</if>
+			<if test="map.version!=null">
+				and version=#{map.version}
+			</if>
+			<if test="map.latest!=null">
+				and version= (select max(version) from version where
+				apptype=#{map.apptype} and onuse='yes' )
+			</if>
+		</where>
+		order by  apptype,onuse desc
+	</select>
+
+	<select id="getVersionById" resultMap="versionMap"
+		parameterType="java.lang.String">
+		select *
+		from version where id=#{id}
+	</select>
+	<delete id="deleteVersion">
+		delete from version where id=#{id} and onuse='no'
+	</delete>
+	<delete id="startVersion">
+		update version t set onuse=(
+		case id
+		when #{id} then 'yes'
+		else 'no' end
+		)
+		where t.apptype = (select s.apptype from version s where s.id=#{id})
+	</delete>
+
+
+
+	<!-- app REST查询 -->
+
+	<select id="getLatestVersion" resultMap="versionMap">
+		select version,url,force,filesize
+		from version t
+		<where>
+			apptype=#{map.apptype}
+			and onuse='yes'
+		</where>
+		order by t.create_date desc
+	</select>
+</mapper>
+  

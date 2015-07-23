@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.RecommendMapper">
+
+	<resultMap id="recMap" type="cn.aresoft.model.app.Rec">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="fundcode" property="fundcode" jdbcType="VARCHAR" />
+		<result column="fundname" property="fundname" jdbcType="VARCHAR" />
+		<result column="fundtypename" property="fundtypename" jdbcType="VARCHAR" />
+		<result column="msg" property="msg" jdbcType="VARCHAR" />
+		<result column="rec_type" property="rectype" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<insert id="insertRec" parameterType="cn.aresoft.model.app.Rec">
+		insert into recommend
+		(id,create_name,create_by,create_date,onuse,fundcode,fundname,fundtypename,msg,rec_type,remark)
+		values(seq_version_id.nextval,#{rec.createName},#{rec.createBy},
+		sysdate,#{rec.onuse},#{rec.fundcode},#{rec.fundname},#{rec.fundtypename},#{rec.msg},#{rec.rectype},#{rec.remark})
+	</insert>
+
+	<update id="updateRec" parameterType="cn.aresoft.model.app.Rec">
+		update recommend set
+		update_by=#{rec.updateBy},update_name=#{rec.updateName},update_date=sysdate,onuse=#{rec.onuse},
+		fundcode=#{rec.fundcode},fundname=#{rec.fundname},fundtypename=#{rec.fundtypename},
+		msg=#{rec.msg},rec_type=#{rec.rectype},remark=#{rec.remark}
+		where id=#{rec.id}
+	</update>
+
+	<select id="queryRecList" resultMap="recMap">
+		select
+		id,fundcode,fundname,fundtypename,msg,onuse,rec_type,remark
+		from recommend
+		<where>
+			1=1
+			<if test="map.fundcode!=null">
+				and fundcode = #{map.fundcode}
+			</if>
+		</where>
+		order by onuse desc,rec_type,create_date desc
+	</select>
+
+	<select id="getRecById" resultMap="recMap" parameterType="java.lang.String">
+		select
+		*
+		from recommend where id=#{id}
+	</select>
+	<delete id="deleteRec">
+		delete from recommend where id=#{id} and onuse='no'
+	</delete>
+	<select id="getFundCodes" resultType="String">
+		select
+		fundcode
+		from
+		recommend t
+	</select>
+
+	<!-- REST查询 -->
+	<select id="queryRestRecList" resultMap="recMap">
+		select
+		fundname,fundcode,fundtypename,msg,rec_type
+		from recommend
+		<where>
+			1=1
+			<if test="map.onuse!=null">
+				and onuse = #{map.onuse}
+			</if>
+			<if test="map.rec_type!=null">
+				and rec_type = #{map.rec_type}
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+</mapper>
+  

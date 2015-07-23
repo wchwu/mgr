@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.ActMapper">
+
+	<resultMap id="actMap" type="cn.aresoft.model.app.Act">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="picurl" property="picurl" jdbcType="VARCHAR" />
+		<result column="tourl" property="tourl" jdbcType="VARCHAR" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="actname" property="actname" jdbcType="VARCHAR" />
+		<result column="act_date" property="actdate" jdbcType="VARCHAR" />
+		<result column="start_date" property="startdate" jdbcType="TIMESTAMP" />
+		<result column="end_Date" property="enddate" jdbcType="TIMESTAMP" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<!-- <result column="appmgr_picurl" property="appmgrpicurl"
+			jdbcType="VARCHAR" /> -->
+	</resultMap>
+
+	<insert id="insertAct" parameterType="cn.aresoft.model.app.Act">
+		insert into activity
+		(id,create_name,create_by,create_date,picurl,tourl,onuse,actname,act_date,start_date,end_date,remark)
+		values(seq_version_id.nextval,#{act.createName},#{act.createBy},
+		sysdate,#{act.picurl},#{act.tourl},#{act.onuse},#{act.actname},#{act.actdate},#{act.startdate},#{act.enddate},#{act.remark})
+	</insert>
+
+	<update id="updateAct" parameterType="cn.aresoft.model.app.Act">
+		update activity set
+		update_by=#{act.updateBy},update_name=#{act.updateName},update_date=sysdate,picurl=#{act.picurl},
+		tourl=#{act.tourl},onuse=#{act.onuse},actname=#{act.actname},
+		act_date=#{act.actdate},start_date=#{act.startdate},end_date=#{act.enddate},remark=#{act.remark}
+		where id=#{act.id}
+	</update>
+
+	<select id="queryActList" resultMap="actMap">
+		select
+		id,picurl,tourl,onuse,actname,act_date,start_date,end_date,remark
+		from
+		activity
+		<where>
+			1=1
+			<if test="map.actname!=null">
+				and actname like #{map.actname}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by onuse desc,create_date desc
+	</select>
+
+	<select id="getActById" resultMap="actMap" parameterType="java.lang.String">
+		select
+		*
+		from activity where id=#{id}
+	</select>
+	<delete id="deleteAct">
+		delete from activity where id=#{id} and onuse='no'
+	</delete>
+
+	<!-- app REST查询 -->
+	<select id="queryRestActList" resultMap="actMap">
+		select
+		id,picurl,tourl,actname,act_date
+		from
+		activity
+		<where>
+			1=1
+			<if test="map.actname!=null">
+				and actname like #{map.actname}
+			</if>
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+	<select id="countAct" resultType="int">
+		select id from activity
+		<where>
+			1=1
+			<if test="map.onuse!=null">
+				and onuse=#{map.onuse}
+			</if>
+		</where>
+	</select>
+</mapper>
+  

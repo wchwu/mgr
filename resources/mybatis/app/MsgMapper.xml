@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.aresoft.dao.app.MsgMapper">
+
+	<resultMap id="msgMap" type="cn.aresoft.model.app.Msg">
+		<result column="ID" property="id" jdbcType="NUMERIC" />
+		<result column="create_Name" property="createName" jdbcType="VARCHAR" />
+		<result column="create_By" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_Date" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="update_Name" property="updateName" jdbcType="VARCHAR" />
+		<result column="update_by" property="updateBy" jdbcType="VARCHAR" />
+		<result column="update_Date" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="start_date" property="startdate" jdbcType="TIMESTAMP" />
+		<result column="end_Date" property="enddate" jdbcType="TIMESTAMP" />
+		<result column="onuse" property="onuse" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="content" property="content" jdbcType="VARCHAR" />
+		<result column="rank" property="rank" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<insert id="insertMsg" parameterType="cn.aresoft.model.app.Msg">
+		insert into message
+		(id,create_name,create_by,create_date,title,content,onuse,rank,start_date,end_date,remark)
+		values(seq_version_id.nextval,#{msg.createName},#{msg.createBy},
+		sysdate,#{msg.title},#{msg.content},#{msg.onuse},#{msg.rank},#{msg.startdate},#{msg.enddate},#{msg.remark})
+	</insert>
+
+	<update id="updateMsg" parameterType="cn.aresoft.model.app.Msg">
+		update message set
+		update_by=#{msg.updateBy},update_name=#{msg.updateName},update_date=sysdate,title=#{msg.title},
+		content=#{msg.content},onuse=#{msg.onuse},rank=#{msg.rank},
+		start_date=#{msg.startdate},end_date=#{msg.enddate},remark=#{msg.remark}
+		where id=#{msg.id}
+	</update>
+
+	<select id="queryMsgList" resultMap="msgMap">
+		select
+		id,title,content,onuse,rank,start_date,end_date,remark
+		from message
+		<where>
+			1=1
+			<if test="map.onuse!=null">
+				and onuse = #{map.onuse}
+			</if>
+			<if test="map.msgtype!=null">
+				and rank = #{map.msgtype}
+			</if>
+			<if test="map.title!=null">
+				and title like #{map.title}
+			</if>
+			<if test="map.content!=null">
+				and content like #{map.content}
+			</if>
+		</where>
+		order by onuse desc,create_date desc
+	</select>
+
+	<select id="getMsgById" resultMap="msgMap" parameterType="java.lang.String">
+		select
+		*
+		from message where id=#{id}
+	</select>
+	<delete id="deleteMsg">
+		delete from message where id=#{id} and onuse='no'
+	</delete>
+
+	<!-- REST查询 -->
+	<select id="queryRestMsgList" resultMap="msgMap">
+		select
+		id,title,start_date
+		<if test="map.content_col!=null">,content</if>
+		from message
+		<where>
+			1=1
+			<if test="map.onuse!=null">
+				and onuse = #{map.onuse}
+			</if>
+			<if test="map.rank!=null">
+				and rank = #{map.rank}
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+
+	<select id="queryRestMsgIds" resultType="int">
+		select
+		id
+		from message
+		<where>
+			onuse = 'yes'
+		</where>
+		order by id desc
+	</select>
+	<select id="queryRestMsgById" resultMap="msgMap">
+		select
+		id,content
+		from
+		message
+		where id = #{id}
+
+	</select>
+</mapper>
+  
